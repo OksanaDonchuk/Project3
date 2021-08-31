@@ -1,7 +1,5 @@
 from pathlib import Path
 import json
-import pickle
-import difflib
 
 
 class Noter:
