@@ -1,7 +1,5 @@
 from pathlib import Path
 import json
-import pickle
-import difflib
 
 
 class Noter:
@@ -141,69 +139,5 @@ class Noter:
             return res_str
         return f"There is no this text in tags and names"
 
-
-
-if __name__ == "__main__":
-    commands = ["add", "exit", "delete", "show", "find"]
-    prediction_experience = {}
-    noter = Noter()
-    try:
-        with open("experience.dat", "rb") as f:
-            prediction_experience = pickle.load(f)
-    except FileNotFoundError:
-        prediction_experience = {}
-    while True:
-        command = str(input("Enter command:>> ")).lower()
-        if not command in commands:
-            answer = ""
-            while answer != "y":
-                if command in commands:
-                    break
-                for key, value in prediction_experience.items():
-                    if command in key:
-                        print(f"(d)Perhaps you mean {prediction_experience[key]}")
-                        answer = str(input("Answer (Y/N): ")).lower()
-                        if answer == "n":
-                            command = str(input("Command input error, try again: ")).lower()
-                        elif answer == "y":
-                            command = prediction_experience[key]
-                            break
-                if not command in commands:
-                    result = str(difflib.get_close_matches(command, commands, cutoff=0.1, n=1))[2:-2]
-                    print(f"Perhaps you mean {result}")
-                    answer = str(input("Answer (Y/N): ")).lower()
-                    if answer == "n":
-                        command = str(input("Command input error, try again: ")).lower()
-                    elif answer == "y":
-                        prediction_experience[command] = result
-                        command = result
-        if command == "add":
-            print("Creating a note...")
-            while True:
-                name = str(input("Enter name:> "))
-                if f"{name}.json" in noter.scan():
-                    print (f"'{name}' is used. Choose another name")
-                    continue
-                else:
-                    text = str(input("Enter text:> "))
-                    answer = str(input("Do you need tags recording now (Y/N):> ")).lower()
-                    if answer == "y":
-                        tags = str(input("Enter tags:> "))
-                        print(noter.add(name, text, tags))
-                    elif answer == "n":
-                        print(noter.add(name, text))
-                    else:
-                        print("Incorrect answer. Default mode is a new note without tag")
-                        print(noter.add(name, text, tags))
-                break
-        if command == "show":
-            print("Choosing the note to show...")
-            name = str(input("Enter name:> "))
-            print(noter.show_note(name))
-        if command == "exit":
-            print("Good buy!")
-            with open("experience.dat", "wb") as f:
-                pickle.dump(prediction_experience, f)
-            break
 
 
