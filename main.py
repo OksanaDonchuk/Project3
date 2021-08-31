@@ -133,6 +133,7 @@ def signal_handler(signal, frame):
 
 if __name__ == '__main__':
     contact_list = contact_book.AddressBook()
+    serialized_lpist = contact_list.save_dumped_data()
     contact_list = contact_list.read_dumped_data()
     path = pathlib.Path('contact_list.txt')
     
@@ -401,7 +402,7 @@ if __name__ == '__main__':
                     break
 
         if command == 'sort file': #SORT FILE
-            ############ HELP 4 SORT FILE
+            ############ HELP 4 
             user_input = input(
                 'Enter the directory for sorting (disk:/folder/folder/) ').split()
             sort_file.start(user_input)
