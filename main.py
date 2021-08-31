@@ -22,7 +22,7 @@ def input_error(func):
             return f'Command not full!!'
     return inner
 
-
+#in USE
 def com_add(name, phone, email = None, adress = None, birthday=None):
     if name.value in [key.value for key in list(contact_list.keys())]:
         raise ValueError(f'The new contact cannot be saved because the name "{name.value}" already exists. '
@@ -31,8 +31,8 @@ def com_add(name, phone, email = None, adress = None, birthday=None):
     record = contact_book.Record(name, email, adress, birthday) + phone
     contact_list.add_record(name, record)
     return f'New contact is saved: name "{name.value}", phone "{phone.value}",'\
-        f'email "{email.value if email else "-"}",'\
-        f'adress "{adress.value if adress else "-"}",'\
+        f'email "{email if email else "-"}",'\
+        f'adress "{adress if adress else "-"}",'\
         f' date of birth "{birthday.value if birthday else "-"}".\n'
 
 
@@ -71,22 +71,12 @@ def com_delete(name, phone):
         if nam.value == name:
             for ph in rec.phones:
                 if ph.value == phone:
-                    rec.remove(ph)
-                    return f'Delete phone number "{phone.value}" for a contact with the name "{name}".\n'
+                    print(rec)
                 else:
                     raise ValueError(
                         f'The contact "{name}" does not have a phone number {phone}.\n')
 
 
-def com_phone(name):
-    for nam, rec in contact_list.items():
-        if nam.value == name:
-            return ' '.join([phone.value for phone in rec.phones])
-    raise ValueError(f'Contact with the name "{name}" does not exist.\n')
-
-
-def com_show_all():
-    return contact_list.iterator()
 
 
 def com_search(pattern):
@@ -111,15 +101,7 @@ def get_command_handler(user_input):
             user_input = input(
                 'Enter your command (add, join, change, phone, search, delete, show all or exit/close/good bye):\n').lower().split() 
                         
-            if user_input[0] == 'search':
-                user_input = input(
-                'Enter what search: \n').split()
-                return com_search(user_input[0])
-            
-            if user_input[0] == 'phone':
-                user_input = input(
-                'Enter name: \n').lower().split() 
-                return com_phone(user_input[0])
+           
             
             if user_input[0] == 'delete':
                 user_input = input(
@@ -128,31 +110,8 @@ def get_command_handler(user_input):
                 user_input = input(
                 'Enter phone: \n').split()    
                 return com_delete(name[0], contact_book.Phone(user_input[0]))
+
             
-            if user_input[0] == 'join':
-                user_input = input(
-                'Enter name: \n').lower().split() 
-                name = user_input
-                user_input = input(
-                'Enter phone: \n').split()    
-                return com_join(name[0], contact_book.Phone(user_input[0]))
-            if user_input[0] == 'add':
-                user_input = input(
-                'Enter name: \n').split()
-                name = user_input
-                user_input = input(
-                'Enter phone: \n').split()
-                phone = user_input
-                user_input = input( 
-                'Enter email "email@email.com": \n') 
-                email = contact_book.Email(
-                    user_input) if len(user_input) > 5 else None
-                user_input = input( 
-                'Enter birthday "YYYY-MM-DD": \n')
-                birthday = contact_book.Birthday(
-                    user_input) if len(user_input) > 9 else None
-                    
-                return com_add(contact_book.Name(name[0]), contact_book.Phone(phone[0]), email, adress, birthday)
             if user_input[0] == 'change':
                 user_input = input(
                 'Enter name: \n').split()
@@ -180,26 +139,29 @@ def signal_handler(signal, frame):
     sys.exit(0)
 
 
-contact_list = contact_book.AddressBook()
 
 
 if __name__ == '__main__':
     contact_list = contact_book.AddressBook()
+    contact_list = contact_list.read_dumped_data()
     path = pathlib.Path('contact_list.txt')
     
     noter = Noter.Noter()   
-    if path.exists() and path.stat().st_size > 0:
-        contact_list = contact_list.read_dumped_data()
+
+    
 
 
     while True:
+
+
         print ('Main menu')
-        user_input = input ('Enter comand (contact, noter, sort file): ')
+        user_input = input ('Enter comand (contact, noter, sort file, exit): ')
+
 
         if user_input == 'contact': #CONTACT
 
             print ('Contact assistant')
-            commands = ["add contact", "exit", "delete", "show", "find", "show all"]
+            commands = ["add contact", "return", "delete", "show", "find", "show all", "add number"]
             prediction_experience = {}
             try:
                 with open("experience.dat", "rb") as f:
@@ -207,8 +169,8 @@ if __name__ == '__main__':
             except FileNotFoundError:
                 prediction_experience = {}  
 
-            while True: #COMAND
-                command = str(input("Enter command (add contact, delete, show, show all, find, return):>> ")).lower()
+            while True: #CONTACT COMAND
+                command = str(input("Enter command (add contact, add number, delete, show, show all, find, return):>> ")).lower()
                 if not command in commands:
                     answer = ""
                     while answer != "y":
@@ -232,20 +194,28 @@ if __name__ == '__main__':
                             elif answer == "y":
                                 prediction_experience[command] = result
                                 command = result
+
+
                 if command == "add contact": # add contact
                     print("Creating a contact...")
                     while True:
                         name = input("Enter name:> \n").split()[0]
-                        if f"{name}.json" in noter.scan():
+                        result = contact_list.iterator()
+                        name_list = []
+                        for n in result:
+                            for rec in n:
+                                name_list.append(rec.name.value)
+                        if name in name_list:
                             print (f"'{name}' is used. Choose another name")
                             continue
-                        else:
+                        else:    
                             phone = input("Enter phone (+380XXXXXXXXX or 0XXXXXXXXX):> \n").split()[0]
                             answer = input("Do you need add adress (Y/N):> ").lower()
                             if answer == "y":
-                                adress = input("Enter adress:> \n")
+                                adress = str(input("Enter adress:> \n"))
                             elif answer == "n":
                                 adress = None
+                            
                             else:
                                 print("Incorrect answer.")
                                 continue
@@ -259,30 +229,70 @@ if __name__ == '__main__':
                                 continue                            
                             answer = (input("Do you need add day of birthday (Y/N):> \n")).lower()
                             if answer == "y":
-                                birthday = input("Enter birthday:> \n")
+                                birthday = input("Enter birthday 'YYYY-MM-DD':> \n")
                             elif answer == "n":
                                 birthday = None
                             else:
                                 print("Incorrect answer.")  
-                            com_add(contact_book.Name(name), contact_book.Phone(phone), email, birthday)
+                            print(com_add(contact_book.Name(name), contact_book.Phone(phone), email, adress, birthday))
+                            serialized_lpist = contact_list.save_dumped_data()
                         break
+
+
                 if command == "show": #show
-                    print("Choosing the note to show...")
+                    print("Choosing the contact to show...")
                     name = input("Enter name:> ").split()[0]
                     print(com_search(name))
+
+
+                if command == "add number": #ADD NUMBER
+                    name = input("Enter name:> ").split()[0]
+                    phone = input("Enter number:> ").split()[0]                    
+                    com_join(name,contact_book.Phone(phone))
+                    serialized_lpist = contact_list.save_dumped_data()
+
+
+                if command == "add email": #ADD EMAIL
+                    
+                    name = input("Enter name:> ").split()[0]
+                    email = input("Enter email:> ").split()[0]                    
+                    com_join(name, contact_book.Email(email))
+                    serialized_lpist = contact_list.save_dumped_data()
+
+
+                if command == "add adress": #ADD ADRESS
+
+                    name = input("Enter name:> ").split()[0]
+                    adress = input("Enter adress:> ")                    
+                    com_join(name,contact_book.Adress(adress))
+                    serialized_lpist = contact_list.save_dumped_data()
+
+
+                if command == "add birthday": #ADD ADRESS
+
+                    name = input("Enter name:> ").split()[0]
+                    birthday = input("Enter birthday:> ").split()[0]                    
+                    com_join(name,contact_book.Adress(adress))
+                    serialized_lpist = contact_list.save_dumped_data()
+
                 if command == "delete":
-                    print("Choosing the note to delete...")
-                    name = str(input("Enter name:> "))
-                    print(noter.delete(name))
+                    name = input("Enter name:> ").split()[0]
+                    phone = input("Enter number:> ").split()[0]                    
+                    com_delete(name,phone)
+
+                            
+
+
                 if command == "show all": # show all
                     result = contact_list.iterator()
                     for n in result:
                         for rec in n:
                             print(f'name: {rec.name.value}; phone: {", ".join([phone.value for phone in rec.phones])};'
-                          f' email {rec.email.value if rec.email else "-"} '  
-                          f'adress {rec.adress.value if rec.adress else "-"} '
+                          f' email {rec.email if rec.email else "-"} '  
+                          f'adress {rec.adress if rec.adress else "-"} '
                           f'birthday {rec.birthday.value if rec.birthday else "-"} '  
                           )
+
 
                 if command == "return":
                     print("Return to main menu")
@@ -290,17 +300,18 @@ if __name__ == '__main__':
                         pickle.dump(prediction_experience, f)
                     break
 
+
         if user_input == 'noter': #NOTER
             print ('Noter assistant')
-            commands = ["add note", "exit", "delete", "show", "find", "show all"]
+            commands = ["add note", "return", "delete", "show", "find", "show all"]
             prediction_experience = {}
             try:
                 with open("experience.dat", "rb") as f:
                     prediction_experience = pickle.load(f)
             except FileNotFoundError:
                 prediction_experience = {}    
-            while True:
-                command = str(input("Enter command (add note, delete, show, find, return):>> ")).lower()
+            while True: #NOTER COMAND
+                command = str(input("Enter command (add note, delete, show, show all, find, return):>> ")).lower()
                 if not command in commands:
                     answer = ""
                     while answer != "y":
@@ -324,7 +335,7 @@ if __name__ == '__main__':
                             elif answer == "y":
                                 prediction_experience[command] = result
                                 command = result
-                if command == "add note":
+                if command == "add note": # ADD NOTE
                     print("Creating a note...")
                     while True:
                         name = str(input("Enter name:> "))
@@ -359,10 +370,13 @@ if __name__ == '__main__':
                         pickle.dump(prediction_experience, f)
                     break
 
+
         if user_input == 'sort file': #SORT FILE
             user_input = input(
                 'Enter the directory for sorting (disk:/folder/folder/) ').split()
             sort_file.start(user_input)
-            
 
-serialized_lpist = contact_list.save_dumped_data()
+        if user_input == 'exit':
+            
+            break
+

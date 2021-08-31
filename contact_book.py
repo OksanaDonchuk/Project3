@@ -5,9 +5,11 @@ import re
 
 
 class AddressBook(UserDict):
+    FOLDER = "contact_data/"
+
     def add_record(self, name, record):
         self.data[name] = record
-        print(self.data[name])
+
 
     def iterator(self, n=None):
         # returns a view for 'n' records in one iteration
