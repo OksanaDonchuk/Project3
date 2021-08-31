@@ -1,12 +1,9 @@
 import contact_book
 import sort_file
 import Noter
-import inspect
 import pathlib
-import signal
 import sys
 from pathlib import Path
-import json
 import pickle
 import difflib
 
@@ -50,8 +47,7 @@ def com_change(name, phone, new_phone):
                     raise ValueError(
                         f'The contact "{name}" does not have a phone number {phone}.\n')
 
-
-
+#in USE
 def com_join(name, phone):
     if not name in [key.value for key in list(contact_list.keys())]:
         raise ValueError(
@@ -60,7 +56,7 @@ def com_join(name, phone):
         if nam.value == name:
             record = rec + phone
             contact_list.add_record(nam, record)
-    return f'A new phone number "{phone.value}" has been added for the contact with the name "{name}".\n'
+    return f'A new phone nu mber "{phone.value}" has been added for the contact with the name "{name}".\n'
 
 
 def com_delete(name, phone):
@@ -69,14 +65,12 @@ def com_delete(name, phone):
             f'Сontact by name "{name}" does not exist. Enter the correct name.\n')
     for nam, rec in contact_list.items():
         if nam.value == name:
-            for ph in rec.phones:
+            for ph in rec.phones: 
                 if ph.value == phone:
                     print(rec)
                 else:
                     raise ValueError(
                         f'The contact "{name}" does not have a phone number {phone}.\n')
-
-
 
 
 def com_search(pattern):
@@ -130,15 +124,11 @@ def get_command_handler(user_input):
     else:
         raise KeyError(user_input[0])
 
-
 @ input_error
-
 
 def signal_handler(signal, frame):
     contact_list.save_dumped_data()
     sys.exit(0)
-
-
 
 
 if __name__ == '__main__':
@@ -147,30 +137,66 @@ if __name__ == '__main__':
     path = pathlib.Path('contact_list.txt')
     
     noter = Noter.Noter()   
-
-    
-
-
+    ######### for HELP 1 MAIN MENU
+    commands = ["contact", "noter", "sort file", "exit"]
+    prediction_experience = {}
+    ####
+    try:
+        with open("experience.dat", "rb") as f:
+            prediction_experience = pickle.load(f)
+    except FileNotFoundError:
+        prediction_experience = {}  
+    ####
     while True:
-
-
         print ('Main menu')
-        user_input = input ('Enter comand (contact, noter, sort file, exit): ')
-
-
-        if user_input == 'contact': #CONTACT
+        command = input ('Enter comand (contact, noter, sort file, exit): ')
+        ####
+        if not command in commands:
+            answer = ""
+            while answer != "y":
+                if command in commands:
+                    break
+                for key, value in prediction_experience.items():
+                    if command in key:
+                        print(f"(d)Perhaps you mean {prediction_experience[key]}")
+                        answer = str(input("Answer (Y/N): ")).lower()
+                        if answer == "n":
+                            command = str(input("Command input error, try again: ")).lower()
+                        elif answer == "y":
+                            command = prediction_experience[key]
+                            break
+                if not command in commands:
+                    result = str(difflib.get_close_matches(command, commands, cutoff=0.1, n=1))[2:-2]
+                    print(f"Perhaps you mean {result}")
+                    answer = str(input("Answer (Y/N): ")).lower()
+                    if answer == "n":
+                        command = str(input("Command input error, try again: ")).lower()
+                    elif answer == "y":
+                        prediction_experience[command] = result
+                        command = result
+        ####   
+        if command == 'contact': #CONTACT
 
             print ('Contact assistant')
-            commands = ["add contact", "return", "delete", "show", "find", "show all", "add number"]
+            ######## for HELP 2 CONTACT
+            commands = ["add contact", "delete contact", 
+            "show", "find", "show all", 
+            "add number", "change number","delete number", 
+            "add email", "change email", "delete email",
+            "add adress", "change adress", "delete emadressail",
+            "add birthday", "change birthday", "delete birthday",
+            "return"]
             prediction_experience = {}
+            ####
             try:
                 with open("experience.dat", "rb") as f:
                     prediction_experience = pickle.load(f)
             except FileNotFoundError:
                 prediction_experience = {}  
-
+            ####
             while True: #CONTACT COMAND
                 command = str(input("Enter command (add contact, add number, delete, show, show all, find, return):>> ")).lower()
+                ####
                 if not command in commands:
                     answer = ""
                     while answer != "y":
@@ -194,8 +220,7 @@ if __name__ == '__main__':
                             elif answer == "y":
                                 prediction_experience[command] = result
                                 command = result
-
-
+                ####
                 if command == "add contact": # add contact
                     print("Creating a contact...")
                     while True:
@@ -275,6 +300,7 @@ if __name__ == '__main__':
                     com_join(name,contact_book.Adress(adress))
                     serialized_lpist = contact_list.save_dumped_data()
 
+
                 if command == "delete":
                     name = input("Enter name:> ").split()[0]
                     phone = input("Enter number:> ").split()[0]                    
@@ -300,10 +326,13 @@ if __name__ == '__main__':
                         pickle.dump(prediction_experience, f)
                     break
 
-
-        if user_input == 'noter': #NOTER
+        if command == 'noter': #NOTER
             print ('Noter assistant')
-            commands = ["add note", "return", "delete", "show", "find", "show all"]
+            ######## for HELP 3 NOTER
+            commands = ["add note", "show text", "show tag", 
+            "delete", "show", "edit", "return", 
+            "add tag", "show all",  "sort tag", "find text"]
+            
             prediction_experience = {}
             try:
                 with open("experience.dat", "rb") as f:
@@ -335,6 +364,7 @@ if __name__ == '__main__':
                             elif answer == "y":
                                 prediction_experience[command] = result
                                 command = result
+                
                 if command == "add note": # ADD NOTE
                     print("Creating a note...")
                     while True:
@@ -352,31 +382,31 @@ if __name__ == '__main__':
                                 print(noter.add(name, text))
                             else:
                                 print("Incorrect answer. Default mode is a new note without tag")
-                                print(noter.add(name, text, tags))
+                                print(noter.add(name, text))
                         break
-                if command == "show":
+                if command == "show": #SHOW
                     print("Choosing the note to show...")
                     name = str(input("Enter name:> "))
                     print(noter.show_note(name))
-                if command == "delete":
+                if command == "delete": # DELETE
                     print("Choosing the note to delete...")
                     name = str(input("Enter name:> "))
                     print(noter.delete(name))
-                if command == "show all":
+                if command == "show all": # SHOW ALL
                     print(noter.scan())
-                if command == "return":
+                if command == "return": # return
                     print("Return to main menu")
                     with open("experience.dat", "wb") as f:
                         pickle.dump(prediction_experience, f)
                     break
 
-
-        if user_input == 'sort file': #SORT FILE
+        if command == 'sort file': #SORT FILE
+            ############ HELP 4 SORT FILE
             user_input = input(
                 'Enter the directory for sorting (disk:/folder/folder/) ').split()
             sort_file.start(user_input)
 
-        if user_input == 'exit':
+        if command == 'exit':
             
             break
 
