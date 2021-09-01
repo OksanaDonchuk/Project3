@@ -19,7 +19,7 @@ def input_error(func):
             return f'Command not full!!'
     return inner
 
-#in USE
+#in USE add contact
 def com_add(name, phone, email = None, adress = None, birthday=None):
     if name.value in [key.value for key in list(contact_list.keys())]:
         raise ValueError(f'The new contact cannot be saved because the name "{name.value}" already exists. '
@@ -32,8 +32,9 @@ def com_add(name, phone, email = None, adress = None, birthday=None):
         f'adress "{adress if adress else "-"}",'\
         f' date of birth "{birthday.value if birthday else "-"}".\n'
 
-
+#in USE change number
 def com_change(name, phone, new_phone):
+    print(new_phone)
     if not name in [key.value for key in list(contact_list.keys())]:
         raise ValueError(
             f'Сontact by name "{name}" does not exist. Enter the correct name.\n')
@@ -43,11 +44,11 @@ def com_change(name, phone, new_phone):
                 if ph.value == phone:
                     rec.change_phone(ph, new_phone)
                     return f'Saved a new phone number "{new_phone.value}" for a contact with the name "{name}".\n'
-                else:
-                    raise ValueError(
-                        f'The contact "{name}" does not have a phone number {phone}.\n')
+        else:
+            raise ValueError(
+                f'The contact "{name}" does not have a phone number {phone}.\n')
 
-#in USE
+#in USE add number
 def com_join(name, phone):
     if not name in [key.value for key in list(contact_list.keys())]:
         raise ValueError(
@@ -56,30 +57,28 @@ def com_join(name, phone):
         if nam.value == name:
             record = rec + phone
             contact_list.add_record(nam, record)
-    return f'A new phone nu mber "{phone.value}" has been added for the contact with the name "{name}".\n'
+    print (f'A new phone number "{phone.value}" has been added for the contact with the name "{name}".\n')
 
-
+#in USE delete number
 def com_delete(name, phone):
     if not name in [key.value for key in list(contact_list.keys())]:
         raise ValueError(
             f'Сontact by name "{name}" does not exist. Enter the correct name.\n')
     for nam, rec in contact_list.items():
         if nam.value == name:
-            for ph in rec.phones: 
+            for ph in rec.phones:
                 if ph.value == phone:
-                    print(rec)
-                else:
-                    raise ValueError(
-                        f'The contact "{name}" does not have a phone number {phone}.\n')
+                    rec.phones.remove(ph)
+                    print(f'Delete phone number "{ph.value}" for a contact with the name "{name}".\n') 
 
-
+#in USE show
 def com_search(pattern):
     result = ''
     for nam, rec in contact_list.items():
         phone_list = [phone.value for phone in rec.phones]
         for p in phone_list:
             if p.find(pattern) != (-1) or nam.value.find(pattern) != (-1):
-                result += f'name: {nam.value}, phone: {" ".join([phone.value for phone in rec.phones])}, ' \
+                result = f'name: {nam.value}, phone: {" ".join([phone.value for phone in rec.phones])}, ' \
                           f' email {rec.email.value if rec.email else "-"} ' \
                           f'adress {rec.adress.value if rec.adress else "-"} '  \
                           f'birthday {rec.birthday.value if rec.birthday else "-"}\n' 
@@ -88,39 +87,65 @@ def com_search(pattern):
     return result
 
 
+#in USE show
+def com_delete_contact(name):
+    for nam, rec in contact_list.items():
+        if nam.value == name:
+            contact_list.data.pop(nam)
+            serialized_lpist = contact_list.save_dumped_data()
+    if not result:
+        raise ValueError(f'No matches.\n')
+    return result
+
+
+
+#in USE new email/adress/birthday
+def com_join_attribute (name, email = None, adress = None, birthday = None):
+    if not name in [key.value for key in list(contact_list.keys())]:
+        raise ValueError(
+            f'Сontact with name "{name}" does not exist. Enter the correct name.\n')
+    for nam, rec in contact_list.items():
+        if nam.value == name:
+            if email:
+                rec.email = email
+                contact_list.add_record(nam, rec)
+                print (f'A new email "{email}" has been added for the contact with the name "{name}".\n')
+            if adress:
+                rec.adress = adress
+                contact_list.add_record(nam, rec)
+                print (f'A new adress "{adress}" has been added for the contact with the name "{name}".\n')
+            if birthday:
+                rec.birthday = birthday
+                contact_list.add_record(nam, rec)
+                print (f'A new birthday "{birthday}" has been added for the contact with the name "{name}".\n')
+
+#in USE delete email/adress/birthday
+def com_delete_attribute (name, email = None, adress = None, birthday = None):
+    if not name in [key.value for key in list(contact_list.keys())]:
+        raise ValueError(
+            f'Сontact with name "{name}" does not exist. Enter the correct name.\n')
+    for nam, rec in contact_list.items():
+        if nam.value == name:
+            if email:
+                print (f'A email "{rec.email}" has been remove for the contact with the name "{name}".\n')
+                rec.email = None
+                contact_list.add_record(nam, rec)
+                
+            if adress:
+                print (f'A adress "{rec.adress}" has been remove for the contact with the name "{name}".\n')
+                rec.adress = None
+                contact_list.add_record(nam, rec)
+            if birthday:
+                print (f'A birthday "{rec.birthday}" has been remove for the contact with the name "{name}".\n')
+                rec.birthday = None
+                contact_list.add_record(nam, rec)
+                
+
+
 @ input_error
 def get_command_handler(user_input):  
-    if user_input[:2] == ['contact', 'book']: 
-        while True:
-            user_input = input(
-                'Enter your command (add, join, change, phone, search, delete, show all or exit/close/good bye):\n').lower().split() 
-                        
-           
-            
-            if user_input[0] == 'delete':
-                user_input = input(
-                'Enter name: \n').split() 
-                name = user_input
-                user_input = input(
-                'Enter phone: \n').split()    
-                return com_delete(name[0], contact_book.Phone(user_input[0]))
-
-            
-            if user_input[0] == 'change':
-                user_input = input(
-                'Enter name: \n').split()
-                name = user_input
-                user_input = input(
-                'Enter old phone: \n').split()
-                phone = user_input
-                user_input = input( 
-                'Enter new phone: \n').split()             
-                return com_change(name[0], phone[0], contact_book.Phone(user_input[0]))
-            
-            else:
-                continue
-      
-    
+    if user_input[:2] == ['contact', 'book']:
+        pass  
     else:
         raise KeyError(user_input[0])
 
@@ -133,7 +158,7 @@ def signal_handler(signal, frame):
 
 if __name__ == '__main__':
     contact_list = contact_book.AddressBook()
-    serialized_lpist = contact_list.save_dumped_data()
+    #serialized_lpist = contact_list.save_dumped_data()
     contact_list = contact_list.read_dumped_data()
     path = pathlib.Path('contact_list.txt')
     
@@ -179,13 +204,13 @@ if __name__ == '__main__':
         if command == 'contact': #CONTACT
 
             print ('Contact assistant')
-            ######## for HELP 2 CONTACT
+            ######## for HELP 2 CONTACT 
             commands = ["add contact", "delete contact", 
-            "show", "find", "show all", 
+            "show", "show all",
             "add number", "change number","delete number", 
-            "add email", "change email", "delete email",
-            "add adress", "change adress", "delete emadressail",
-            "add birthday", "change birthday", "delete birthday",
+            "new email", "delete email",
+            "new adress", "delete adress",
+            "new birthday", "delete birthday",
             "return"]
             prediction_experience = {}
             ####
@@ -196,7 +221,7 @@ if __name__ == '__main__':
                 prediction_experience = {}  
             ####
             while True: #CONTACT COMAND
-                command = str(input("Enter command (add contact, add number, delete, show, show all, find, return):>> ")).lower()
+                command = str(input("Enter command :>> ")).lower()
                 ####
                 if not command in commands:
                     answer = ""
@@ -264,11 +289,25 @@ if __name__ == '__main__':
                             serialized_lpist = contact_list.save_dumped_data()
                         break
 
+                if command == "change number":  #CHANGE NUMBER
+                    name = input("Enter name:> ").strip()
+                    phone = input("Enter old number:> ").strip()
+                    new_phone = input("Enter old number:> ").strip()                   
+                    com_change(name, phone , contact_book.Phone(new_phone) )
+                    serialized_lpist = contact_list.save_dumped_data()
+                
 
                 if command == "show": #show
                     print("Choosing the contact to show...")
                     name = input("Enter name:> ").split()[0]
                     print(com_search(name))
+
+
+                if command == "delete contact": #delete contact
+                    print("Choosing the contact to delete...")
+                    name = input("Enter name:> ").strip()
+                    com_delete_contact(name)
+                    print(f'The contact "{name}" has been delete".\n')
 
 
                 if command == "add number": #ADD NUMBER
@@ -278,35 +317,59 @@ if __name__ == '__main__':
                     serialized_lpist = contact_list.save_dumped_data()
 
 
-                if command == "add email": #ADD EMAIL
+                if command == "new email": #new EMAIL
                     
-                    name = input("Enter name:> ").split()[0]
-                    email = input("Enter email:> ").split()[0]                    
-                    com_join(name, contact_book.Email(email))
+                    name = input("Enter name:> ").strip()
+                    email = input("Enter email:> ").strip()                  
+                    com_join_attribute(name, email = contact_book.Email(email).value)
                     serialized_lpist = contact_list.save_dumped_data()
 
 
-                if command == "add adress": #ADD ADRESS
+                if command == "new adress": #new ADRESS
 
-                    name = input("Enter name:> ").split()[0]
-                    adress = input("Enter adress:> ")                    
-                    com_join(name,contact_book.Adress(adress))
+                    name = input("Enter name:> ").strip()
+                    adress = input("Enter adress:> ").strip()                    
+                    com_join_attribute(name,adress = contact_book.Adress(adress).value)
                     serialized_lpist = contact_list.save_dumped_data()
 
 
-                if command == "add birthday": #ADD ADRESS
+                if command == "new birthday": #new BIRTHDAY
 
-                    name = input("Enter name:> ").split()[0]
-                    birthday = input("Enter birthday:> ").split()[0]                    
-                    com_join(name,contact_book.Adress(adress))
+                    name = input("Enter name:> ").strip()
+                    birthday = input("Enter birthday:> ").strip()                  
+                    com_join_attribute(name,birthday = contact_book.Birthday(adress).value)
                     serialized_lpist = contact_list.save_dumped_data()
 
 
-                if command == "delete":
-                    name = input("Enter name:> ").split()[0]
-                    phone = input("Enter number:> ").split()[0]                    
-                    com_delete(name,phone)
+                if command == "delete email": #delete EMAIL
+                    
+                    name = input("Enter name:> ").strip()
+                    email = 'None'                 
+                    com_delete_attribute(name,email = email)
+                    serialized_lpist = contact_list.save_dumped_data()
 
+
+                if command == "delete adress": #delete ADRESS
+
+                    name = input("Enter name:> ").strip()
+                    adress = 'None'              
+                    com_delete_attribute(name,adress = adress)
+                    serialized_lpist = contact_list.save_dumped_data()
+
+
+                if command == "delete birthday": #delete BIRTHDAY
+
+                    name = input("Enter name:> ").strip()
+                    birthday = 'None'                
+                    com_delete_attribute(name,birthday = birthday)
+                    serialized_lpist = contact_list.save_dumped_data()
+
+
+                if command == "delete number": #DELETE PHONE
+                    name = input("Enter name:> ").strip()
+                    phone = input("Enter number:> ").strip()                   
+                    com_delete(name, phone)
+                    serialized_lpist = contact_list.save_dumped_data()
                             
 
 
