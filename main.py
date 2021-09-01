@@ -1,4 +1,7 @@
 import contact_book
+import inspect
+import pathlib
+import signal
 import sort_file
 import Noter
 import pathlib
@@ -184,29 +187,27 @@ def com_delete_attribute(name, email=None, adress=None, birthday=None):
                 contact_list.add_record(nam, rec)
 
 
-@input_error
-def signal_handler(signal, frame):
-    contact_list.save_dumped_data()
-    sys.exit(0)
-
 
 if __name__ == '__main__':
+    path = pathlib.Path('contact_list.txt')
     contact_list = contact_book.AddressBook()
     logger.debug('enter program')  # Логгирование
-    # serialized_lpist = contact_list.save_dumped_data()
+    if path.exists() and path.stat().st_size > 0:
+        contact_list = contact_list.read_dumped_data()
+    
     contact_list = contact_list.read_dumped_data()
     path = pathlib.Path('contact_list.txt')
 
     noter = Noter.Noter()
     ######### for HELP 1 MAIN MENU
-    commands = ["contact", "noter", "sort file", "help", "exit"]
-    prediction_experience = {}
+    commands1 = ["contact", "noter", "sort file", "help", "exit"]
+    prediction_experience1 = {}
     ####
     try:
         with open("experience.dat", "rb") as f:
-            prediction_experience = pickle.load(f)
+            prediction_experience1 = pickle.load(f)
     except FileNotFoundError:
-        prediction_experience = {}
+        prediction_experience1 = {}
         ####
     while True:
         text_help_menu = '''
@@ -283,37 +284,37 @@ if __name__ == '__main__':
 
             '''
         print(text_main_menu)
-        command = input('Enter comand (contact, noter, sort file, help, exit): ')
-        logger.debug(command)  # Логгирование
+        command1 = input('Enter comand (contact, noter, sort file, help, exit): ')
+        logger.debug(command1)  # Логгирование
         ####
-        if not command in commands:
+        if not command1 in commands1:
             answer = ""
             while answer != "y":
-                if command in commands:
+                if command1 in commands1:
                     break
-                for key, value in prediction_experience.items():
-                    if command in key:
-                        print(f"(d)Perhaps you mean {prediction_experience[key]}")
+                for key, value in prediction_experience1.items():
+                    if command1 in key:
+                        print(f"(d)Perhaps you mean {prediction_experience1[key]}")
                         answer = str(input("Answer (Y/N): ")).lower()
                         if answer == "n":
-                            command = str(input("Command input error, try again: ")).lower()
+                            command1 = str(input("Command input error, try again: ")).lower()
                         elif answer == "y":
-                            command = prediction_experience[key]
+                            command1 = prediction_experience1[key]
                             break
-                if not command in commands:
-                    result = str(difflib.get_close_matches(command, commands, cutoff=0.1, n=1))[2:-2]
+                if not command1 in commands1:
+                    result = str(difflib.get_close_matches(command1, commands1, cutoff=0.1, n=1))[2:-2]
                     print(f"Perhaps you mean {result}")
                     answer = str(input("Answer (Y/N): ")).lower()
                     if answer == "n":
-                        command = str(input("Command input error, try again: ")).lower()
+                        command1 = str(input("Command input error, try again: ")).lower()
                     elif answer == "y":
-                        prediction_experience[command] = result
-                        command = result
+                        prediction_experience1[command1] = result
+                        command1 = result
         ####
-        if command == 'help':
+        if command1 == 'help':
             print(text_help_menu)
             command = input('Для продолжение введите -> next: ')
-        if command == 'contact':  # CONTACT
+        if command1 == 'contact':  # CONTACT
 
             text_contact_menu = '''
             -->Меню Адресной книги
@@ -339,50 +340,50 @@ if __name__ == '__main__':
             '''
             print(text_contact_menu)
             ######## for HELP 2 CONTACT
-            commands = ["add contact", "delete contact", 
+            commands2 = ["add contact", "delete contact", 
             "show", "show all",
             "add number", "change number","delete number", 
             "new email", "delete email",
             "new adress", "delete adress",
             "new birthday", "delete birthday","day to birthday",
             "return", "help"]
-            prediction_experience = {}
+            prediction_experience2 = {}
             ####
             try:
                 with open("experience.dat", "rb") as f:
-                    prediction_experience = pickle.load(f)
+                    prediction_experience2 = pickle.load(f)
             except FileNotFoundError:
-                prediction_experience = {}
+                prediction_experience2 = {}
                 ####
             while True:  # CONTACT COMAND
-                command = str(input("Enter command :>> ")).lower()
-                logger.debug(command)  # Логгирование
+                command2 = str(input("Enter command :>> ")).lower()
+                logger.debug(command2)  # Логгирование
                 ####
-                if not command in commands:
+                if not command2 in commands2:
                     answer = ""
                     while answer != "y":
-                        if command in commands:
+                        if command2 in commands2:
                             break
-                        for key, value in prediction_experience.items():
-                            if command in key:
-                                print(f"(d)Perhaps you mean {prediction_experience[key]}")
+                        for key, value in prediction_experience2.items():
+                            if command2 in key:
+                                print(f"(d)Perhaps you mean {prediction_experience2[key]}")
                                 answer = str(input("Answer (Y/N): ")).lower()
                                 if answer == "n":
-                                    command = str(input("Command input error, try again: ")).lower()
+                                    command2 = str(input("Command input error, try again: ")).lower()
                                 elif answer == "y":
-                                    command = prediction_experience[key]
+                                    command2 = prediction_experience2[key]
                                     break
-                        if not command in commands:
-                            result = str(difflib.get_close_matches(command, commands, cutoff=0.1, n=1))[2:-2]
+                        if not command2 in commands2:
+                            result = str(difflib.get_close_matches(command2, commands2, cutoff=0.1, n=1))[2:-2]
                             print(f"Perhaps you mean {result}")
                             answer = str(input("Answer (Y/N): ")).lower()
                             if answer == "n":
-                                command = str(input("Command input error, try again: ")).lower()
+                                command2 = str(input("Command input error, try again: ")).lower()
                             elif answer == "y":
-                                prediction_experience[command] = result
-                                command = result
+                                prediction_experience2[command2] = result
+                                command2 = result
                 ####
-                if command == "add contact": # add contact
+                if command2 == "add contact": # add contact
                     print("Creating a contact...")
                     while True:
                         name = input("Enter name:> \n").strip()
@@ -428,83 +429,83 @@ if __name__ == '__main__':
                             serialized_lpist = contact_list.save_dumped_data()
                         break
 
-                if command == "change number":  #CHANGE NUMBER
+                if command2 == "change number":  #CHANGE NUMBER
                     name = input("Enter name:> ").strip()
                     phone = input("Enter old number:> ").strip()
                     new_phone = input("Enter old number:> ").strip()                   
                     com_change(name, phone , contact_book.Phone(new_phone) )
                     serialized_lpist = contact_list.save_dumped_data()
 
-                if command == "day to birthday":  #day to birthday
+                if command2 == "day to birthday":  #day to birthday
                     print("Choosing the days to birthday...")
                     day = input("Enter days:> ").strip()
                     days_to_birthday(int(day))                  
 
-                if command == "show": #show
+                if command2 == "show": #show
                     print("Choosing the contact to show...")
                     name = input("Enter name:> ").strip()
                     print(com_search(name))
 
-                if command == "delete contact":  # delete contact
+                if command2 == "delete contact":  # delete contact
                     print("Choosing the contact to delete...")
                     name = input("Enter name:> ").strip()
                     com_delete_contact(name)
                     print(f'The contact "{name}" has been delete".\n')
 
-                if command == "add number":  # ADD NUMBER
+                if command2 == "add number":  # ADD NUMBER
                     name = input("Enter name:> ").split()[0]
                     phone = input("Enter number:> ").split()[0]
                     com_join(name, contact_book.Phone(phone))
                     serialized_lpist = contact_list.save_dumped_data()
 
-                if command == "new email":  # new EMAIL
+                if command2 == "new email":  # new EMAIL
 
                     name = input("Enter name:> ").strip()
                     email = input("Enter email:> ").strip()
                     com_join_attribute(name, email=contact_book.Email(email).value)
                     serialized_lpist = contact_list.save_dumped_data()
 
-                if command == "new adress":  # new ADRESS
+                if command2 == "new adress":  # new ADRESS
 
                     name = input("Enter name:> ").strip()
                     adress = input("Enter adress:> ").strip()
                     com_join_attribute(name, adress=contact_book.Adress(adress).value)
                     serialized_lpist = contact_list.save_dumped_data()
 
-                if command == "new birthday":  # new BIRTHDAY
+                if command2 == "new birthday":  # new BIRTHDAY
 
                     name = input("Enter name:> ").strip()
                     birthday = input("Enter birthday:> ").strip()
                     com_join_attribute(name, birthday=contact_book.Birthday(birthday).value)
                     serialized_lpist = contact_list.save_dumped_data()
 
-                if command == "delete email":  # delete EMAIL
+                if command2 == "delete email":  # delete EMAIL
 
                     name = input("Enter name:> ").strip()
                     email = 'None'
                     com_delete_attribute(name, email=email)
                     serialized_lpist = contact_list.save_dumped_data()
 
-                if command == "delete adress":  # delete ADRESS
+                if command2 == "delete adress":  # delete ADRESS
 
                     name = input("Enter name:> ").strip()
                     adress = 'None'
                     com_delete_attribute(name, adress=adress)
                     serialized_lpist = contact_list.save_dumped_data()
 
-                if command == "delete birthday":  # delete BIRTHDAY
+                if command2 == "delete birthday":  # delete BIRTHDAY
 
                     name = input("Enter name:> ").strip()
                     birthday = 'None'
                     com_delete_attribute(name, birthday=birthday)
                     serialized_lpist = contact_list.save_dumped_data()
 
-                if command == "delete number":  # DELETE PHONE
+                if command2 == "delete number":  # DELETE PHONE
                     name = input("Enter name:> ").strip()
                     phone = input("Enter number:> ").strip()
                     com_delete(name, phone)
 
-                if command == "show all":  # show all
+                if command2 == "show all":  # show all
                     result = contact_list.iterator()
                     for n in result:
                         for rec in n:
@@ -514,13 +515,13 @@ if __name__ == '__main__':
                                   f'birthday {rec.birthday if rec.birthday else "-"} '
                                   )
 
-                if command == "return":
+                if command2 == "return":
                     print("Return to main menu")
-                    with open("experience.dat", "wb") as f:
-                        pickle.dump(prediction_experience, f)
+                    with open("experience2.dat", "wb") as f:
+                        pickle.dump(prediction_experience2, f)
                     break
 
-        if command == 'noter':  # NOTER
+        if command1 == 'noter':  # NOTER
             text_noter_menu = '''
             -->Меню Заметок
 
@@ -541,45 +542,45 @@ if __name__ == '__main__':
                         '''
             print(text_noter_menu)
             ######## for HELP 3 NOTER
-            commands = ["add note", "add tag",
+            commands3 = ["add note", "add tag",
                         "show text", "show tag", "show", "show all",
                         "delete", "return", "edit",
                         "sort tag", "find text", "help"]
 
-            prediction_experience = {}
+            prediction_experience3 = {}
             try:
                 with open("experience.dat", "rb") as f:
-                    prediction_experience = pickle.load(f)
+                    prediction_experience3 = pickle.load(f)
             except FileNotFoundError:
-                prediction_experience = {}
+                prediction_experience3 = {}
             while True:  # NOTER COMAND
-                command = str(input("Enter command:>> ")).lower()
-                logger.debug(command)  # Логгирование
-                if not command in commands:
+                command3 = str(input("Enter command:>> ")).lower()
+                logger.debug(command3)  # Логгирование
+                if not command3 in commands3:
                     answer = ""
                     while answer != "y":
-                        if command in commands:
+                        if command3 in commands3:
                             break
-                        for key, value in prediction_experience.items():
-                            if command in key:
-                                print(f"(d)Perhaps you mean {prediction_experience[key]}")
+                        for key, value in prediction_experience3.items():
+                            if command3 in key:
+                                print(f"(d)Perhaps you mean {prediction_experience3[key]}")
                                 answer = str(input("Answer (Y/N): ")).lower()
                                 if answer == "n":
-                                    command = str(input("Command input error, try again: ")).lower()
+                                    command3 = str(input("Command input error, try again: ")).lower()
                                 elif answer == "y":
-                                    command = prediction_experience[key]
+                                    command3 = prediction_experience3[key]
                                     break
-                        if not command in commands:
-                            result = str(difflib.get_close_matches(command, commands, cutoff=0.1, n=1))[2:-2]
+                        if not command3 in commands3:
+                            result = str(difflib.get_close_matches(command3, commands3, cutoff=0.1, n=1)) [2:-2]
                             print(f"Perhaps you mean {result}")
                             answer = str(input("Answer (Y/N): ")).lower()
                             if answer == "n":
-                                command = str(input("Command input error, try again: ")).lower()
+                                command3 = str(input("Command input error, try again: ")).lower()
                             elif answer == "y":
-                                prediction_experience[command] = result
-                                command = result
+                                prediction_experience3[command3] = result
+                                command3 = result
 
-                if command == "add note":  # ADD NOTE
+                if command3 == "add note":  # ADD NOTE
                     print("Creating a note...")
                     while True:
                         name = str(input("Enter name:> "))
@@ -599,59 +600,61 @@ if __name__ == '__main__':
                                 print(noter.add(name, text))
                         break
 
-                if command == "show":  # SHOW
+                if command3 == "show":  # SHOW
                     print("Choosing the note to show...")
                     name = str(input("Enter name:> "))
                     print(noter.show_note(name))
 
-                if command == "add tag":  # add_tag
+                if command3 == "add tag":  # add_tag
                     print("Choosing the note...")
                     name = (input("Enter name:> ").strip())
                     tag = (input("Enter tag:> ").strip())
                     print(noter.add_tag(name, tag))
 
-                if command == "sort tag":  # sort_by_tag
+                if command3 == "sort tag":  # sort_by_tag
                     name = (input("Enter tag:> ").strip())
                     print(noter.sort_by_tag(name, tag))
 
-                if command == "find text":  # find_by_text
+                if command3 == "find text":  # find_by_text
                     tag = (input("Enter text:> ").strip())
                     print(noter.find_by_text(name, tag))
 
-                if command == "edit":  # edit
+                if command3 == "edit":  # edit
                     print("Choosing the note to edit...")
                     name = (input("Enter name:> ").strip())
                     text = (input("Enter text:> ").strip())
                     tag = (input("Enter tag:> ").strip())
                     print(noter.edit(name, text, tag))
 
-                if command == "show tag":  # SHOW TAG
+                if command3 == "show tag":  # SHOW TAG
                     print(noter.show_content_by_tag())
 
-                if command == "show text":  # SHOW TEXT
+                if command3 == "show text":  # SHOW TEXT
                     print(noter.show_content_by_text())
 
-                if command == "delete":  # DELETE
+                if command3 == "delete":  # DELETE
                     print("Choosing the note to delete...")
                     name = str(input("Enter name:> "))
                     print(noter.delete(name))
 
-                if command == "show all":  # SHOW ALL
+                if command3 == "show all":  # SHOW ALL
                     print(noter.scan())
 
-                if command == "return":  # return
+                if command3 == "return":  # return
                     print("Return to main menu")
-                    with open("experience.dat", "wb") as f:
-                        pickle.dump(prediction_experience, f)
+                    with open("experience3.dat", "wb") as f:
+                        pickle.dump(prediction_experience3, f)
+
                     break
 
-        if command == 'sort file':  # SORT FILE
+        if command1 == 'sort file':  # SORT FILE
             ############ HELP 4
             user_input = input(
                 'Enter the directory for sorting (disk:/folder/folder/) ').split()
             logger.debug(command)  # Логгирование
             sort_file.start(user_input)
+            break
 
-        if command == 'exit':
+        if command1 == 'exit':
             logger.debug('exit program')  # Логгирование
             break
