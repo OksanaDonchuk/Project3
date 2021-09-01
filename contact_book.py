@@ -1,7 +1,7 @@
 from collections import UserDict
-from datetime import date
 import pickle
 import re
+from datetime import *
 
 
 class AddressBook(UserDict):
@@ -130,3 +130,5 @@ class Birthday(Field):
                 f'Please enter your birthday in the format: "YYYY-MM-DD".\n')
         else:
             self.__value = new_date_birth
+
+  
