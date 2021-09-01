@@ -6,6 +6,7 @@ import sys
 from pathlib import Path
 import pickle
 import difflib
+from datetime import *
 
 def input_error(func):
     def inner(*args, **kwargs):
@@ -30,7 +31,7 @@ def com_add(name, phone, email = None, adress = None, birthday=None):
     return f'New contact is saved: name "{name.value}", phone "{phone.value}",'\
         f'email "{email if email else "-"}",'\
         f'adress "{adress if adress else "-"}",'\
-        f' date of birth "{birthday.value if birthday else "-"}".\n'
+        f' date of birth "{birthday if birthday else "-"}".\n'
 
 #in USE change number
 def com_change(name, phone, new_phone):
@@ -98,6 +99,30 @@ def com_delete_contact(name):
     return result
 
 
+#in USE days to birthday
+def days_to_birthday(days):
+    for nam, rec in contact_list.items():
+        if rec.birthday:
+            st_birthday = str(rec.birthday).split('-')
+            birthday = []
+            for d in st_birthday:
+                birthday.append(int(d))
+            now_ywd = datetime.now().timetuple()
+            now_date = date(now_ywd[0], now_ywd[1], now_ywd[2])
+            (birthday[0]) = now_ywd[0]
+            days_to_birthday = date((birthday[0]), (birthday[1]), (birthday[2]))
+            delta = (days_to_birthday - now_date).days
+            if delta < 0:
+                (birthday[0]) = now_ywd[0] + 1
+                days_to_birthday = date((birthday[0]), (birthday[1]), (birthday[2]))
+                delta = (days_to_birthday - now_date).days
+                if delta <= days:
+                    print( f'birthday of {nam.value} less {days} days')
+            if delta <= days:
+                    print (f'birthday of {nam.value} less {days} days')
+            else:
+                print (f'Days left {delta} for {nam.value}') 
+        continue
 
 #in USE new email/adress/birthday
 def com_join_attribute (name, email = None, adress = None, birthday = None):
@@ -210,7 +235,7 @@ if __name__ == '__main__':
             "add number", "change number","delete number", 
             "new email", "delete email",
             "new adress", "delete adress",
-            "new birthday", "delete birthday",
+            "new birthday", "delete birthday","day to birthday",
             "return"]
             prediction_experience = {}
             ####
@@ -250,7 +275,7 @@ if __name__ == '__main__':
                 if command == "add contact": # add contact
                     print("Creating a contact...")
                     while True:
-                        name = input("Enter name:> \n").split()[0]
+                        name = input("Enter name:> \n").strip()
                         result = contact_list.iterator()
                         name_list = []
                         for n in result:
@@ -259,20 +284,23 @@ if __name__ == '__main__':
                         if name in name_list:
                             print (f"'{name}' is used. Choose another name")
                             continue
+                        if not name:
+                            print ("Empty input")
+                            continue
                         else:    
-                            phone = input("Enter phone (+380XXXXXXXXX or 0XXXXXXXXX):> \n").split()[0]
+                            phone = input("Enter phone '+380XXXXXXXXX or 0XXXXXXXXX':> \n").strip()                            
                             answer = input("Do you need add adress (Y/N):> ").lower()
                             if answer == "y":
-                                adress = str(input("Enter adress:> \n"))
+                                adress = str(input("Enter adress:> \n")).strip()
+                                continue
                             elif answer == "n":
-                                adress = None
-                            
+                                adress = None                            
                             else:
                                 print("Incorrect answer.")
                                 continue
                             answer = (input("Do you need add email (Y/N):> ")).lower()
                             if answer == "y":
-                                email = input("Enter email:> \n")
+                                email = input("Enter email 'dog@gmail.com':> \n").strip()
                             elif answer == "n":
                                 email = None
                             else:
@@ -280,12 +308,13 @@ if __name__ == '__main__':
                                 continue                            
                             answer = (input("Do you need add day of birthday (Y/N):> \n")).lower()
                             if answer == "y":
-                                birthday = input("Enter birthday 'YYYY-MM-DD':> \n")
+                                birthday =  (input("Enter birthday 'YYYY-MM-DD':> \n").strip())
                             elif answer == "n":
                                 birthday = None
                             else:
                                 print("Incorrect answer.")  
-                            print(com_add(contact_book.Name(name), contact_book.Phone(phone), email, adress, birthday))
+                                continue
+                            print(com_add(name = contact_book.Name(name), phone = contact_book.Phone(phone), email = contact_book.Email(email).value, adress = contact_book.Adress(adress).value, birthday = contact_book.Birthday(birthday).value))
                             serialized_lpist = contact_list.save_dumped_data()
                         break
 
@@ -295,11 +324,17 @@ if __name__ == '__main__':
                     new_phone = input("Enter old number:> ").strip()                   
                     com_change(name, phone , contact_book.Phone(new_phone) )
                     serialized_lpist = contact_list.save_dumped_data()
+
                 
+                if command == "day to birthday":  #day to birthday
+                    print("Choosing the days to birthday...")
+                    day = input("Enter days:> ").strip()
+                    days_to_birthday(int(day))                  
+
 
                 if command == "show": #show
                     print("Choosing the contact to show...")
-                    name = input("Enter name:> ").split()[0]
+                    name = input("Enter name:> ").strip()
                     print(com_search(name))
 
 
@@ -311,8 +346,8 @@ if __name__ == '__main__':
 
 
                 if command == "add number": #ADD NUMBER
-                    name = input("Enter name:> ").split()[0]
-                    phone = input("Enter number:> ").split()[0]                    
+                    name = input("Enter name:> ").strip()
+                    phone = input("Enter number:> ").strip()                
                     com_join(name,contact_book.Phone(phone))
                     serialized_lpist = contact_list.save_dumped_data()
 
@@ -337,7 +372,7 @@ if __name__ == '__main__':
 
                     name = input("Enter name:> ").strip()
                     birthday = input("Enter birthday:> ").strip()                  
-                    com_join_attribute(name,birthday = contact_book.Birthday(adress).value)
+                    com_join_attribute(name, birthday = contact_book.Birthday(birthday).value)
                     serialized_lpist = contact_list.save_dumped_data()
 
 
@@ -380,7 +415,7 @@ if __name__ == '__main__':
                             print(f'name: {rec.name.value}; phone: {", ".join([phone.value for phone in rec.phones])};'
                           f' email {rec.email if rec.email else "-"} '  
                           f'adress {rec.adress if rec.adress else "-"} '
-                          f'birthday {rec.birthday.value if rec.birthday else "-"} '  
+                          f'birthday {rec.birthday if rec.birthday else "-"} '  
                           )
 
 
