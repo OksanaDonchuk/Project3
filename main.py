@@ -393,9 +393,10 @@ if __name__ == '__main__':
         if command == 'noter': #NOTER
             print ('Noter assistant')
             ######## for HELP 3 NOTER
-            commands = ["add note", "show text", "show tag", 
-            "delete", "show", "edit", "return", 
-            "add tag", "show all",  "sort tag", "find text"]
+            commands = ["add note","add tag", 
+            "show text", "show tag", "show", "show all", 
+            "delete", "return", "edit",
+            "sort tag", "find text"]
             
             prediction_experience = {}
             try:
@@ -404,7 +405,7 @@ if __name__ == '__main__':
             except FileNotFoundError:
                 prediction_experience = {}    
             while True: #NOTER COMAND
-                command = str(input("Enter command (add note, delete, show, show all, find, return):>> ")).lower()
+                command = str(input("Enter command:>> ")).lower()
                 if not command in commands:
                     answer = ""
                     while answer != "y":
@@ -448,22 +449,64 @@ if __name__ == '__main__':
                                 print("Incorrect answer. Default mode is a new note without tag")
                                 print(noter.add(name, text))
                         break
+                
+                
                 if command == "show": #SHOW
                     print("Choosing the note to show...")
                     name = str(input("Enter name:> "))
                     print(noter.show_note(name))
+
+
+                if command == "add tag": #add_tag
+                    print("Choosing the note...")
+                    name = (input("Enter name:> ").strip())
+                    tag = (input("Enter tag:> ").strip())
+                    print(noter.add_tag(name, tag))
+
+
+                if command == "sort tag": #sort_by_tag
+                    name = (input("Enter tag:> ").strip())
+                    print(noter.sort_by_tag(name, tag))
+
+
+                if command == "find text": #find_by_text
+                    tag = (input("Enter text:> ").strip())
+                    print(noter.find_by_text(name, tag))
+
+
+                if command == "edit": #edit
+                    print("Choosing the note to edit...")
+                    name = (input("Enter name:> ").strip())
+                    text = (input("Enter text:> ").strip())
+                    tag = (input("Enter tag:> ").strip())
+                    print(noter.edit(name, text, tag))
+
+
+                if command == "show tag": #SHOW TAG
+                    print(noter.show_content_by_tag())
+
+
+                if command == "show text": #SHOW TEXT
+                    print(noter.show_content_by_text())
+
+                
                 if command == "delete": # DELETE
                     print("Choosing the note to delete...")
                     name = str(input("Enter name:> "))
                     print(noter.delete(name))
+                
+                
                 if command == "show all": # SHOW ALL
                     print(noter.scan())
+                
+                
                 if command == "return": # return
                     print("Return to main menu")
                     with open("experience.dat", "wb") as f:
                         pickle.dump(prediction_experience, f)
                     break
-
+                        
+                        
         if command == 'sort file': #SORT FILE
             ############ HELP 4 
             user_input = input(
