@@ -24,7 +24,7 @@ class Noter:
         self.new_file_name = f"{str(Noter.FOLDER)}{name}.json"
         with open(self.new_file_name, "w") as f:
             json.dump(self.note, f)
-        return f"Record '{name}' was successfully added"
+        return f"Note '{name}' was successfully added"
 
     def show_content_by_text(self):     #сканирует папку и выводит актуальный словарь типа имя:заметка
         res_str = ""
@@ -56,9 +56,9 @@ class Noter:
         file = Path(f"{Noter.FOLDER}{name}.json")
         try:
             file.unlink(missing_ok=False)
-            return f"Record number '{name}' was successfully deleted"
+            return f"Note '{name}' was successfully deleted"
         except FileNotFoundError:
-            return f"Record number '{name}' doesn`t exist. Check content and try again"
+            return f"Note '{name}' doesn`t exist. Check content and try again"
 
     def show_note(self, name): # выводит заметку с тэгом по имени
         res_dic = {}
@@ -74,7 +74,7 @@ class Noter:
                 else:
                     return f"Name: {name}\nText: {text}\nTag: {tag}"
         except FileNotFoundError:
-            return f"Record '{name}' doesn`t exist. Check content and try again"
+            return f"Note '{name}' doesn`t exist. Check content and try again"
 
     def edit(self, name, text, tag):  # редактирует / перезаписывает заметку. Логика дозаписи: show_note() -> edit()
         res_dic = {}
@@ -83,9 +83,9 @@ class Noter:
             with open(file, "w") as f:
                 res_dic[text] = tag
                 json.dump(res_dic, f)
-            return f"Record '{name}' was successfully edited"
+            return f"Note '{name}' was successfully edited"
         except FileNotFoundError:
-            return f"Record '{name}' doesn`t exist. Check content and try again"
+            return f"Note '{name}' doesn`t exist. Check content and try again"
 
     def add_tag(self, name, tag):  # дописывает тэг
         res_dic = {}
@@ -100,7 +100,7 @@ class Noter:
                 json.dump(res_dic, f)
             return f"Tag '{tag}' was added to '{name}'"
         except FileNotFoundError:
-            return f"Record '{name}' doesn`t exist. Check content and try again"
+            return f"Note '{name}' doesn`t exist. Check content and try again"
 
 
     def find_by_text(self, req):  # сканирует текст заметок на совпадение, выдает словарь типа имя:заметка
