@@ -73,6 +73,7 @@ Assistant v1.0
      Аудиофайлы = ['MP3','OGG','WAV','AMR']
      Видеофайлы = [AVI','MP4','MOV','MKV']
      Документы = ['DOC','DOCX','TXT','PDF','XLSX','PPTX',]
+     Архивы = ['ZIP','GZ','TAR']
      Остальные файлы = []
      Папки = []
-     Архивы = ['ZIP','GZ','TAR']
+     
