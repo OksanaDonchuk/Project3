@@ -62,13 +62,17 @@ Assistant v1.0
  
     В главном меню программы необходимо ввести 
     команду sort file
-
-    IMAGES = ['JPEG','PNG','JPG','SVG']
-    AUDIO = ['MP3','OGG','WAV','AMR']
-    VIDEO = [AVI','MP4','MOV','MKV']
-    DOCUMENTS = ['DOC','DOCX','TXT','PDF','XLSX','PPTX',]
-    OTHER = []
-    FOLDERS = []
-    ARCHIVES = ['ZIP','GZ','TAR']
-    UNKNOW = set()
-    EXTENSIONS = set()  
+    
+    Приложение проверяет расширение файлов (в 
+    указаной пользователем папке) и в зависимости
+    от расширения принимает решение к какой 
+    категории отнести этот файл.
+    
+    Категории файлов:
+     Изображение = ['JPEG','PNG','JPG','SVG']
+     Аудиофайлы = ['MP3','OGG','WAV','AMR']
+     Видеофайлы = [AVI','MP4','MOV','MKV']
+     Документы = ['DOC','DOCX','TXT','PDF','XLSX','PPTX',]
+     Остальные файлы = []
+     Папки = []
+     Архивы = ['ZIP','GZ','TAR']
