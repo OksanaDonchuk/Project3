@@ -36,14 +36,16 @@ class AddressBook(UserDict):
 
 
 class Record:
-    def __init__(self, name, email=None, adress=None, birthday=None):
+    def __init__(self, name, email = None, adress = None, birthday=None):
+
         self.name = name
         self.adress = adress
         self.email = email
         self.phones = []
         self.birthday = birthday
 
-    def __add__(self, phone, email=None):
+    def __add__(self, phone, email = None):
+
         self.phones.append(phone)
         return self
 
@@ -70,7 +72,6 @@ class Name(Field):
     def __init__(self, name):
         self.value = name
 
-
 class Adress(Field):
     def __init__(self, adress):
         self.value = adress
@@ -84,9 +85,11 @@ class Phone(Field):
 class Email(Field):
     def __init__(self, email):
         self.value = email
-
+ 
 
 class Birthday(Field):
 
     def __init__(self, date_birth):
         self.value = date_birth
+
+

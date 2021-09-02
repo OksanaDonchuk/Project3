@@ -6,6 +6,7 @@ import sort_file
 import Noter
 import pathlib
 import re
+import sys
 from pathlib import Path
 import pickle
 import difflib
@@ -22,6 +23,31 @@ logger.addHandler(handler)  # Логгирование
 
 # in USE add contact
 def com_add(name, phone, email=None, adress=None, birthday=None):
+import logging #Логгирование
+from logging import FileHandler, Formatter #Логгирование
+logger = logging.getLogger(__name__) #Логгирование
+logger.setLevel(logging.DEBUG) #Логгирование
+handler = logging.FileHandler("MyLogFile.txt") #Логгирование
+handler.setFormatter(Formatter(fmt='[%(asctime)s]: %(message)s')) #Логгирование
+logger.addHandler(handler) #Логгирование
+
+
+def input_error(func):
+    def inner(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except KeyError as e:
+            return f'Command {e} not found!!!'
+        except ValueError as e:
+            return e
+        except IndexError as e:
+            return f'Command not full!!'
+
+    return inner
+
+
+# in USE add contact
+def com_add(name, phone, email = None, adress = None, birthday=None):
     if name.value in [key.value for key in list(contact_list.keys())]:
         raise ValueError(f'The new contact cannot be saved because the name "{name.value}" already exists. '
                          f'Please enter a different name.\n')
@@ -60,9 +86,7 @@ def com_join(name, phone):
         if nam.value == name:
             record = rec + phone
             contact_list.add_record(nam, record)
-    print(
-        f'A new phone number "{phone.value}" has been added for the contact with the name "{name}".\n')
-
+    print(f'A new phone number "{phone.value}" has been added for the contact with the name "{name}".\n')
 
 # in USE delete number
 def com_delete(name, phone):
@@ -74,13 +98,12 @@ def com_delete(name, phone):
             for ph in rec.phones:
                 if ph.value == phone:
                     rec.phones.remove(ph)
-                    print(
-                        f'Delete phone number "{ph.value}" for a contact with the name "{name}".\n')
+                    print(f'Delete phone number "{ph.value}" for a contact with the name "{name}".\n')
 
                 # in USE show
 
 
-# in USE show
+#in USE show
 def com_search(pattern):
     result = ''
     for nam, rec in contact_list.items():
@@ -88,15 +111,14 @@ def com_search(pattern):
         for p in phone_list:
             if p.find(pattern) != (-1) or nam.value.find(pattern) != (-1):
                 result = f'name: {nam.value}, phone: {" ".join([phone.value for phone in rec.phones])}, ' \
-                    f' email {rec.email if rec.email else "-"} ' \
-                    f'adress {rec.adress if rec.adress else "-"} '  \
-                    f'birthday {rec.birthday if rec.birthday else "-"}\n'
+                          f' email {rec.email if rec.email else "-"} ' \
+                          f'adress {rec.adress if rec.adress else "-"} '  \
+                          f'birthday {rec.birthday if rec.birthday else "-"}\n' 
     if not result:
         raise ValueError(f'No matches.\n')
     return result
 
-
-# in USE com_delete_contact
+#in USE com_delete_contact
 def com_delete_contact(name):
     for nam, rec in contact_list.items():
         if nam.value == name:
@@ -107,7 +129,7 @@ def com_delete_contact(name):
     return result
 
 
-# in USE days to birthday
+#in USE days to birthday
 def days_to_birthday(days):
     for nam, rec in contact_list.items():
         if rec.birthday:
@@ -118,20 +140,18 @@ def days_to_birthday(days):
             now_ywd = datetime.now().timetuple()
             now_date = date(now_ywd[0], now_ywd[1], now_ywd[2])
             (birthday[0]) = now_ywd[0]
-            days_to_birthday = date(
-                (birthday[0]), (birthday[1]), (birthday[2]))
+            days_to_birthday = date((birthday[0]), (birthday[1]), (birthday[2]))
             delta = (days_to_birthday - now_date).days
             if delta < 0:
                 (birthday[0]) = now_ywd[0] + 1
-                days_to_birthday = date(
-                    (birthday[0]), (birthday[1]), (birthday[2]))
+                days_to_birthday = date((birthday[0]), (birthday[1]), (birthday[2]))
                 delta = (days_to_birthday - now_date).days
                 if delta <= days:
-                    print(f'birthday of {nam.value} less {days} days')
+                    print( f'birthday of {nam.value} less {days} days')
             if delta <= days:
-                print(f'birthday of {nam.value} less {days} days')
+                    print (f'birthday of {nam.value} less {days} days')
             else:
-                print(f'Days left {delta} for {nam.value}')
+                print (f'Days left {delta} for {nam.value}') 
         continue
 
 
@@ -145,18 +165,16 @@ def com_join_attribute(name, email=None, adress=None, birthday=None):
             if email:
                 rec.email = email
                 contact_list.add_record(nam, rec)
-                print(
-                    f'A new email "{email}" has been added for the contact with the name "{name}".\n')
+                print(f'A new email "{email}" has been added for the contact with the name "{name}".\n')
             if adress:
                 rec.adress = adress
                 contact_list.add_record(nam, rec)
-                print(
-                    f'A new adress "{adress}" has been added for the contact with the name "{name}".\n')
+                print(f'A new adress "{adress}" has been added for the contact with the name "{name}".\n')
             if birthday:
                 rec.birthday = birthday
                 contact_list.add_record(nam, rec)
-                print(
-                    f'A new birthday "{birthday}" has been added for the contact with the name "{name}".\n')
+                print(f'A new birthday "{birthday}" has been added for the contact with the name "{name}".\n')
+
 
 
 # in USE delete email/adress/birthday
@@ -167,22 +185,18 @@ def com_delete_attribute(name, email=None, adress=None, birthday=None):
     for nam, rec in contact_list.items():
         if nam.value == name:
             if email:
-                print(
-                    f'A email "{rec.email}" has been remove for the contact with the name "{name}".\n')
+                print(f'A email "{rec.email}" has been remove for the contact with the name "{name}".\n')
                 rec.email = None
                 contact_list.add_record(nam, rec)
 
             if adress:
-                print(
-                    f'A adress "{rec.adress}" has been remove for the contact with the name "{name}".\n')
+                print(f'A adress "{rec.adress}" has been remove for the contact with the name "{name}".\n')
                 rec.adress = None
                 contact_list.add_record(nam, rec)
             if birthday:
-                print(
-                    f'A birthday "{rec.birthday}" has been remove for the contact with the name "{name}".\n')
+                print(f'A birthday "{rec.birthday}" has been remove for the contact with the name "{name}".\n')
                 rec.birthday = None
                 contact_list.add_record(nam, rec)
-
 
 contact_list = contact_book.AddressBook()
 
@@ -190,12 +204,14 @@ if __name__ == '__main__':
     path = pathlib.Path('contact_list.txt')
 
     logger.debug('enter program')  # Логгирование
-
+    
     if path.exists() and path.stat().st_size > 0:
         contact_list = contact_list.read_dumped_data()
 
+
     noter = Noter.Noter()
-    # for HELP 1 MAIN MENU
+    ######### for HELP 1 MAIN MENU
+
     commands1 = ["contact", "noter", "sort file", "help", "exit"]
     prediction_experience1 = {}
     ####
@@ -207,6 +223,7 @@ if __name__ == '__main__':
         ####
     while True:
         text_help_menu = '''
+
         --------------
         Assistant v1.0
         --------------
@@ -263,6 +280,7 @@ if __name__ == '__main__':
               3. Сортировка файлов.
             --------------
             -->Главное меню
+
             Для перехода в необходимую подпрограмму введите команду:
               contact - адресная книга
               noter - заметки
@@ -271,8 +289,8 @@ if __name__ == '__main__':
               exit - выход из программы
             '''
         print(text_main_menu)
-        command1 = input(
-            'Enter comand (contact, noter, sort file, help, exit): ')
+        command1 = input('Enter comand (contact, noter, sort file, help, exit): ')
+
         logger.debug(command1)  # Логгирование
         ####
         if not command1 in commands1:
@@ -282,23 +300,19 @@ if __name__ == '__main__':
                     break
                 for key, value in prediction_experience1.items():
                     if command1 in key:
-                        print(
-                            f"(d)Perhaps you mean {prediction_experience1[key]}")
+                        print(f"(d)Perhaps you mean {prediction_experience1[key]}")
                         answer = str(input("Answer (Y/N): ")).lower()
                         if answer == "n":
-                            command1 = str(
-                                input("Command input error, try again: ")).lower()
+                            command1 = str(input("Command input error, try again: ")).lower()
                         elif answer == "y":
                             command1 = prediction_experience1[key]
                             break
                 if not command1 in commands1:
-                    result = str(difflib.get_close_matches(
-                        command1, commands1, cutoff=0.1, n=1))[2:-2]
+                    result = str(difflib.get_close_matches(command1, commands1, cutoff=0.1, n=1))[2:-2]
                     print(f"Perhaps you mean {result}")
                     answer = str(input("Answer (Y/N): ")).lower()
                     if answer == "n":
-                        command1 = str(
-                            input("Command input error, try again: ")).lower()
+                        command1 = str(input("Command input error, try again: ")).lower()
                     elif answer == "y":
                         prediction_experience1[command1] = result
                         command1 = result
@@ -310,7 +324,7 @@ if __name__ == '__main__':
 
             text_contact_menu = '''
             -->Меню Адресной книги
-            Доступные кооманды:
+            Доступные команды:
               add contact - добавить контакт
               delete contact - удалить контакт
               add number - добавить номер телефона существующему контакту 
@@ -329,14 +343,15 @@ if __name__ == '__main__':
               return - выход в предыдущее меню
             '''
             print(text_contact_menu)
-            # for HELP 2 CONTACT
-            commands2 = ["add contact", "delete contact",
-                         "show", "show all",
-                         "add number", "change number", "delete number",
-                         "new email", "delete email",
-                         "new adress", "delete adress",
-                         "new birthday", "delete birthday", "day to birthday",
-                         "return", "help"]
+            ######## for HELP 2 CONTACT
+            commands2 = ["add contact", "delete contact", 
+            "show", "show all",
+            "add number", "change number","delete number", 
+            "new email", "delete email",
+            "new adress", "delete adress",
+            "new birthday", "delete birthday","day to birthday",
+            "return", "help"]
+
             prediction_experience2 = {}
             ####
             try:
@@ -356,28 +371,25 @@ if __name__ == '__main__':
                             break
                         for key, value in prediction_experience2.items():
                             if command2 in key:
-                                print(
-                                    f"(d)Perhaps you mean {prediction_experience2[key]}")
+                                print(f"(d)Perhaps you mean {prediction_experience2[key]}")
                                 answer = str(input("Answer (Y/N): ")).lower()
                                 if answer == "n":
-                                    command2 = str(
-                                        input("Command input error, try again: ")).lower()
+                                    command2 = str(input("Command input error, try again: ")).lower()
                                 elif answer == "y":
                                     command2 = prediction_experience2[key]
                                     break
                         if not command2 in commands2:
-                            result = str(difflib.get_close_matches(
-                                command2, commands2, cutoff=0.1, n=1))[2:-2]
+                            result = str(difflib.get_close_matches(command2, commands2, cutoff=0.1, n=1))[2:-2]
                             print(f"Perhaps you mean {result}")
                             answer = str(input("Answer (Y/N): ")).lower()
                             if answer == "n":
-                                command2 = str(
-                                    input("Command input error, try again: ")).lower()
+                                command2 = str(input("Command input error, try again: ")).lower()
                             elif answer == "y":
                                 prediction_experience2[command2] = result
                                 command2 = result
                 ####
-                if command2 == "add contact":  # add contact
+
+                if command2 == "add contact": # add contact
                     print("Creating a contact...")
                     while True:
                         name = input("Enter name:> \n").strip()
@@ -500,13 +512,11 @@ if __name__ == '__main__':
                         com_join_attribute(
                             name, email=contact_book.Email(email).value)
                         serialized_lpist = contact_list.save_dumped_data()
-
                 if command2 == "new adress":  # new ADRESS
 
                     name = input("Enter name:> ").strip()
                     adress = input("Enter adress:> ").strip()
-                    com_join_attribute(
-                        name, adress=contact_book.Adress(adress).value)
+                    com_join_attribute(name, adress=contact_book.Adress(adress).value)
                     serialized_lpist = contact_list.save_dumped_data()
 
                 if command2 == "new birthday":  # new BIRTHDAY
@@ -522,7 +532,6 @@ if __name__ == '__main__':
                         com_join_attribute(
                             name, birthday=contact_book.Birthday(birthday).value)
                         serialized_lpist = contact_list.save_dumped_data()
-
                 if command2 == "delete email":  # delete EMAIL
 
                     name = input("Enter name:> ").strip()
@@ -583,11 +592,11 @@ if __name__ == '__main__':
               return - выход в предыдущее меню
                         '''
             print(text_noter_menu)
-            # for HELP 3 NOTER
+            ######## for HELP 3 NOTER
             commands3 = ["add note", "add tag",
-                         "show text", "show tag", "show", "show all",
-                         "delete", "return", "edit",
-                         "sort tag", "find text", "help"]
+                        "show text", "show tag", "show", "show all",
+                        "delete", "return", "edit",
+                        "sort tag", "find text", "help"]
 
             prediction_experience3 = {}
             try:
@@ -605,23 +614,19 @@ if __name__ == '__main__':
                             break
                         for key, value in prediction_experience3.items():
                             if command3 in key:
-                                print(
-                                    f"(d)Perhaps you mean {prediction_experience3[key]}")
+                                print(f"(d)Perhaps you mean {prediction_experience3[key]}")
                                 answer = str(input("Answer (Y/N): ")).lower()
                                 if answer == "n":
-                                    command3 = str(
-                                        input("Command input error, try again: ")).lower()
+                                    command3 = str(input("Command input error, try again: ")).lower()
                                 elif answer == "y":
                                     command3 = prediction_experience3[key]
                                     break
                         if not command3 in commands3:
-                            result = str(difflib.get_close_matches(
-                                command3, commands3, cutoff=0.1, n=1))[2:-2]
+                            result = str(difflib.get_close_matches(command3, commands3, cutoff=0.1, n=1)) [2:-2]
                             print(f"Perhaps you mean {result}")
                             answer = str(input("Answer (Y/N): ")).lower()
                             if answer == "n":
-                                command3 = str(
-                                    input("Command input error, try again: ")).lower()
+                                command3 = str(input("Command input error, try again: ")).lower()
                             elif answer == "y":
                                 prediction_experience3[command3] = result
                                 command3 = result
@@ -635,16 +640,14 @@ if __name__ == '__main__':
                             continue
                         else:
                             text = str(input("Enter text:> "))
-                            answer = str(
-                                input("Do you need tags recording now (Y/N):> ")).lower()
+                            answer = str(input("Do you need tags recording now (Y/N):> ")).lower()
                             if answer == "y":
                                 tags = str(input("Enter tags:> "))
                                 print(noter.add(name, text, tags))
                             elif answer == "n":
                                 print(noter.add(name, text))
                             else:
-                                print(
-                                    "Incorrect answer. Default mode is a new note without tag")
+                                print("Incorrect answer. Default mode is a new note without tag")
                                 print(noter.add(name, text))
                         break
 
