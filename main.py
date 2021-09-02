@@ -195,9 +195,7 @@ if __name__ == '__main__':
     
     if path.exists() and path.stat().st_size > 0:
         contact_list = contact_list.read_dumped_data()
-    
 
-    path = pathlib.Path('contact_list.txt')
 
     noter = Noter.Noter()
     ######### for HELP 1 MAIN MENU
