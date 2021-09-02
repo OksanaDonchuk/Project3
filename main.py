@@ -186,16 +186,17 @@ def com_delete_attribute(name, email=None, adress=None, birthday=None):
                 rec.birthday = None
                 contact_list.add_record(nam, rec)
 
-
+contact_list = contact_book.AddressBook()
 
 if __name__ == '__main__':
     path = pathlib.Path('contact_list.txt')
-    contact_list = contact_book.AddressBook()
+    
     logger.debug('enter program')  # Логгирование
+    
     if path.exists() and path.stat().st_size > 0:
         contact_list = contact_list.read_dumped_data()
     
-    contact_list = contact_list.read_dumped_data()
+
     path = pathlib.Path('contact_list.txt')
 
     noter = Noter.Noter()
@@ -313,7 +314,7 @@ if __name__ == '__main__':
         ####
         if command1 == 'help':
             print(text_help_menu)
-            command = input('Для продолжение введите -> next: ')
+            command1 = input('Для продолжение введите -> next: ')
         if command1 == 'contact':  # CONTACT
 
             text_contact_menu = '''
@@ -411,7 +412,7 @@ if __name__ == '__main__':
                                 continue
                             answer = (input("Do you need add email (Y/N):> ")).lower()
                             if answer == "y":
-                                email = input("Enter email 'dog@gmail.com':> \n").strip()
+                                email = contact_book.Email(input("Enter email 'dog@gmail.com':> \n").strip()).value
                             elif answer == "n":
                                 email = None
                             else:
@@ -419,13 +420,13 @@ if __name__ == '__main__':
                                 continue                            
                             answer = (input("Do you need add day of birthday (Y/N):> \n")).lower()
                             if answer == "y":
-                                birthday =  (input("Enter birthday 'YYYY-MM-DD':> \n").strip())
+                                birthday =  contact_book.Birthday((input("Enter birthday 'YYYY-MM-DD':> \n").strip())).value
                             elif answer == "n":
                                 birthday = None
                             else:
                                 print("Incorrect answer.")  
                                 continue
-                            print(com_add(name = contact_book.Name(name), phone = contact_book.Phone(phone), email = contact_book.Email(email).value, adress = contact_book.Adress(adress).value, birthday = contact_book.Birthday(birthday).value))
+                            print(com_add(name = contact_book.Name(name), phone = contact_book.Phone(phone), email = email, adress = contact_book.Adress(adress).value, birthday = birthday))
                             serialized_lpist = contact_list.save_dumped_data()
                         break
 
@@ -651,7 +652,7 @@ if __name__ == '__main__':
             ############ HELP 4
             user_input = input(
                 'Enter the directory for sorting (disk:/folder/folder/) ').split()
-            logger.debug(command)  # Логгирование
+            logger.debug(command1)  # Логгирование
             sort_file.start(user_input)
             break
 
