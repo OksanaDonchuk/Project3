@@ -5,11 +5,24 @@ import signal
 import sort_file
 import Noter
 import pathlib
+import re
 import sys
 from pathlib import Path
 import pickle
 import difflib
 from datetime import *
+import logging  # Логгирование
+from logging import FileHandler, Formatter  # Логгирование
+logger = logging.getLogger(__name__)  # Логгирование
+logger.setLevel(logging.DEBUG)  # Логгирование
+handler = logging.FileHandler("MyLogFile.txt")  # Логгирование
+handler.setFormatter(
+    Formatter(fmt='[%(asctime)s]: %(message)s'))  # Логгирование
+logger.addHandler(handler)  # Логгирование
+
+
+# in USE add contact
+def com_add(name, phone, email=None, adress=None, birthday=None):
 import logging #Логгирование
 from logging import FileHandler, Formatter #Логгирование
 logger = logging.getLogger(__name__) #Логгирование
@@ -75,7 +88,6 @@ def com_join(name, phone):
             contact_list.add_record(nam, record)
     print(f'A new phone number "{phone.value}" has been added for the contact with the name "{name}".\n')
 
-
 # in USE delete number
 def com_delete(name, phone):
     if not name in [key.value for key in list(contact_list.keys())]:
@@ -105,7 +117,6 @@ def com_search(pattern):
     if not result:
         raise ValueError(f'No matches.\n')
     return result
-
 
 #in USE com_delete_contact
 def com_delete_contact(name):
@@ -165,6 +176,7 @@ def com_join_attribute(name, email=None, adress=None, birthday=None):
                 print(f'A new birthday "{birthday}" has been added for the contact with the name "{name}".\n')
 
 
+
 # in USE delete email/adress/birthday
 def com_delete_attribute(name, email=None, adress=None, birthday=None):
     if not name in [key.value for key in list(contact_list.keys())]:
@@ -190,7 +202,7 @@ contact_list = contact_book.AddressBook()
 
 if __name__ == '__main__':
     path = pathlib.Path('contact_list.txt')
-    
+
     logger.debug('enter program')  # Логгирование
     
     if path.exists() and path.stat().st_size > 0:
@@ -199,6 +211,7 @@ if __name__ == '__main__':
 
     noter = Noter.Noter()
     ######### for HELP 1 MAIN MENU
+
     commands1 = ["contact", "noter", "sort file", "help", "exit"]
     prediction_experience1 = {}
     ####
@@ -214,16 +227,13 @@ if __name__ == '__main__':
         --------------
         Assistant v1.0
         --------------
-
         Программа - персональный ассистент. 
-
         -->Команды главного меню:
             contact - адресная книга
             noter - заметки
             sort file - сортировка файлов
             help - помощь 
             exit - выход из программы
-
         -->Команды адресной книги:
             add contact - добавить контакт
             delete contact - удалить контакт
@@ -240,7 +250,6 @@ if __name__ == '__main__':
             show all - информация по всем контактам
             help - помощь
             return - выход в предыдущее меню
-
         -->Команды меню заметок:
             add note - добавить заметку
             show text - показать текст заметки
@@ -259,7 +268,6 @@ if __name__ == '__main__':
             В главном меню программы необходимо ввести 
             команду sort file
         
-
         '''
         text_main_menu = '''
             --------------
@@ -271,7 +279,6 @@ if __name__ == '__main__':
               2. Работа с заметками;
               3. Сортировка файлов.
             --------------
-
             -->Главное меню
 
             Для перехода в необходимую подпрограмму введите команду:
@@ -280,10 +287,10 @@ if __name__ == '__main__':
               sort file - сортировка файлов
               help - помощь 
               exit - выход из программы
-
             '''
         print(text_main_menu)
         command1 = input('Enter comand (contact, noter, sort file, help, exit): ')
+
         logger.debug(command1)  # Логгирование
         ####
         if not command1 in commands1:
@@ -317,8 +324,7 @@ if __name__ == '__main__':
 
             text_contact_menu = '''
             -->Меню Адресной книги
-
-            Доступные кооманды:
+            Доступные команды:
               add contact - добавить контакт
               delete contact - удалить контакт
               add number - добавить номер телефона существующему контакту 
@@ -335,7 +341,6 @@ if __name__ == '__main__':
               show all - информация по всем контактам
               help - помощь
               return - выход в предыдущее меню
-
             '''
             print(text_contact_menu)
             ######## for HELP 2 CONTACT
@@ -346,6 +351,7 @@ if __name__ == '__main__':
             "new adress", "delete adress",
             "new birthday", "delete birthday","day to birthday",
             "return", "help"]
+
             prediction_experience2 = {}
             ####
             try:
@@ -382,6 +388,7 @@ if __name__ == '__main__':
                                 prediction_experience2[command2] = result
                                 command2 = result
                 ####
+
                 if command2 == "add contact": # add contact
                     print("Creating a contact...")
                     while True:
@@ -392,55 +399,85 @@ if __name__ == '__main__':
                             for rec in n:
                                 name_list.append(rec.name.value)
                         if name in name_list:
-                            print (f"'{name}' is used. Choose another name")
+                            print(f"'{name}' is used. Choose another name")
                             continue
                         if not name:
-                            print ("Empty input")
+                            print("Empty input")
                             continue
-                        else:    
-                            phone = input("Enter phone '+380XXXXXXXXX or 0XXXXXXXXX':> \n").strip()                            
-                            answer = input("Do you need add adress (Y/N):> ").lower()
+                        else:
+                            phone = input(
+                                "Enter phone '+380XXXXXXXXX or 0XXXXXXXXX':> \n").strip()
+                            REG_PHONE = '(^\+?(\d{2})?\(?(0\d{2})\)?(\d{7}$))'
+                            if not re.search(REG_PHONE, str(phone)):
+                                print(
+                                    f'This phone number "{phone}" is not correct. Please enter a 10 or 12 digit phone number.\n')
+                                continue
+                            else:
+                                answer = input(
+                                    "Do you need add adress (Y/N):> ").lower()
                             if answer == "y":
-                                adress = str(input("Enter adress:> \n")).strip()
+                                adress = str(
+                                    input("Enter adress:> \n")).strip()
                                 continue
                             elif answer == "n":
-                                adress = None                            
+                                adress = None
                             else:
                                 print("Incorrect answer.")
                                 continue
-                            answer = (input("Do you need add email (Y/N):> ")).lower()
+                            answer = (
+                                input("Do you need add email (Y/N):> ")).lower()
                             if answer == "y":
-                                email = contact_book.Email(input("Enter email 'dog@gmail.com':> \n").strip()).value
+                                email = contact_book.Email(
+                                    input("Enter email 'dog@gmail.com':> \n").strip()).value
+                                SAN_EMAIL = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
+                                if not re.search(SAN_EMAIL, str(email)):
+                                    print(
+                                        f'This email "{email}" is not correct.\n')
+                                    continue
                             elif answer == "n":
                                 email = None
                             else:
                                 print("Incorrect answer.")
-                                continue                            
-                            answer = (input("Do you need add day of birthday (Y/N):> \n")).lower()
+                                continue
+                            answer = (
+                                input("Do you need add day of birthday (Y/N):> \n")).lower()
                             if answer == "y":
-                                birthday =  contact_book.Birthday((input("Enter birthday 'YYYY-MM-DD':> \n").strip())).value
+                                birthday = contact_book.Birthday(
+                                    (input("Enter birthday 'YYYY-MM-DD':> \n").strip())).value
+                                REG_DATE = r'([12]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))'
+                                if not re.search(REG_DATE, str(birthday)):
+                                    print(
+                                        f'Please enter your birthday in the format: "YYYY-MM-DD".\n')
+                                    continue
                             elif answer == "n":
                                 birthday = None
                             else:
-                                print("Incorrect answer.")  
+                                print("Incorrect answer.")
                                 continue
-                            print(com_add(name = contact_book.Name(name), phone = contact_book.Phone(phone), email = email, adress = contact_book.Adress(adress).value, birthday = birthday))
+                            print(com_add(name=contact_book.Name(name), phone=contact_book.Phone(
+                                phone), email=email, adress=contact_book.Adress(adress).value, birthday=birthday))
                             serialized_lpist = contact_list.save_dumped_data()
                         break
 
-                if command2 == "change number":  #CHANGE NUMBER
+                if command2 == "change number":  # CHANGE NUMBER
                     name = input("Enter name:> ").strip()
                     phone = input("Enter old number:> ").strip()
-                    new_phone = input("Enter old number:> ").strip()                   
-                    com_change(name, phone , contact_book.Phone(new_phone) )
-                    serialized_lpist = contact_list.save_dumped_data()
+                    new_phone = input("Enter new number:> ").strip()
+                    REG_PHONE = '(^\+?(\d{2})?\(?(0\d{2})\)?(\d{7}$))'
+                    if not re.search(REG_PHONE, str(new_phone)):
+                        print(
+                            f'This phone number "{new_phone}" is not correct. Please enter a 10 or 12 digit phone number.\n')
+                        continue
+                    else:
+                        com_change(name, phone, contact_book.Phone(new_phone))
+                        serialized_lpist = contact_list.save_dumped_data()
 
-                if command2 == "day to birthday":  #day to birthday
+                if command2 == "day to birthday":  # day to birthday
                     print("Choosing the days to birthday...")
                     day = input("Enter days:> ").strip()
-                    days_to_birthday(int(day))                  
+                    days_to_birthday(int(day))
 
-                if command2 == "show": #show
+                if command2 == "show":  # show
                     print("Choosing the contact to show...")
                     name = input("Enter name:> ").strip()
                     print(com_search(name))
@@ -454,16 +491,27 @@ if __name__ == '__main__':
                 if command2 == "add number":  # ADD NUMBER
                     name = input("Enter name:> ").split()[0]
                     phone = input("Enter number:> ").split()[0]
-                    com_join(name, contact_book.Phone(phone))
-                    serialized_lpist = contact_list.save_dumped_data()
+                    REG_PHONE = '(^\+?(\d{2})?\(?(0\d{2})\)?(\d{7}$))'
+                    if not re.search(REG_PHONE, str(phone)):
+                        print(
+                            f'This phone number "{phone}" is not correct. Please enter a 10 or 12 digit phone number.\n')
+                        continue
+                    else:
+                        com_join(name, contact_book.Phone(phone))
+                        serialized_lpist = contact_list.save_dumped_data()
 
                 if command2 == "new email":  # new EMAIL
 
                     name = input("Enter name:> ").strip()
                     email = input("Enter email:> ").strip()
-                    com_join_attribute(name, email=contact_book.Email(email).value)
-                    serialized_lpist = contact_list.save_dumped_data()
-
+                    SAN_EMAIL = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
+                    if not re.search(SAN_EMAIL, str(email)):
+                        print(f'This email "{email}" is not correct.\n')
+                        continue
+                    else:
+                        com_join_attribute(
+                            name, email=contact_book.Email(email).value)
+                        serialized_lpist = contact_list.save_dumped_data()
                 if command2 == "new adress":  # new ADRESS
 
                     name = input("Enter name:> ").strip()
@@ -475,9 +523,15 @@ if __name__ == '__main__':
 
                     name = input("Enter name:> ").strip()
                     birthday = input("Enter birthday:> ").strip()
-                    com_join_attribute(name, birthday=contact_book.Birthday(birthday).value)
-                    serialized_lpist = contact_list.save_dumped_data()
-
+                    REG_DATE = r'([12]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))'
+                    if not re.search(REG_DATE, str(birthday)):
+                        print(
+                            f'Please enter your birthday in the format: "YYYY-MM-DD".\n')
+                        continue
+                    else:
+                        com_join_attribute(
+                            name, birthday=contact_book.Birthday(birthday).value)
+                        serialized_lpist = contact_list.save_dumped_data()
                 if command2 == "delete email":  # delete EMAIL
 
                     name = input("Enter name:> ").strip()
@@ -523,7 +577,6 @@ if __name__ == '__main__':
         if command1 == 'noter':  # NOTER
             text_noter_menu = '''
             -->Меню Заметок
-
             Доступные кооманды:
               add note - добавить заметку
               show text - показать текст заметки
@@ -537,7 +590,6 @@ if __name__ == '__main__':
               find text - поиск заметки по тексту
               help - помощь
               return - выход в предыдущее меню
-
                         '''
             print(text_noter_menu)
             ######## for HELP 3 NOTER
@@ -647,11 +699,12 @@ if __name__ == '__main__':
                     break
 
         if command1 == 'sort file':  # SORT FILE
-            ############ HELP 4
-            user_input = input(
-                'Enter the directory for sorting (disk:/folder/folder/) ').split()
+            # HELP 4
+            input_arg = input(
+                'Enter the directory for sorting (disk:/folder/folder/) ')
+            sort_folder = Path(input_arg)
             logger.debug(command1)  # Логгирование
-            sort_file.start(user_input)
+            sort_file.main(sort_folder)
             break
 
         if command1 == 'exit':
